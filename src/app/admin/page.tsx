@@ -1,36 +1,32 @@
-import PostForm from '@/components/posts/Form'
-import HeaderTag from '@/components/ui/header'
-import AdminSkelton from '@/components/ui/skeletons/adminSkeleton'
-import { API_BASE_URL } from '@/contstants'
-import { UseFetch } from '@/hooks/useFetch'
-import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import SavedContentUI from '@/components/admin/savedContentUI'
-import CreatedPostsUI from '@/components/admin/createdPostsUi'
+import PostForm from "@/components/posts/Form";
+import HeaderTag from "@/components/ui/header";
+import AdminSkelton from "@/components/ui/skeletons/adminSkeleton";
+import { Suspense } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SavedContentUI from "@/components/admin/savedContentUI";
+import CreatedPostsUI from "@/components/admin/createdPostsUi";
+import getMyPosts from "@/api/endpoints";
 
 export type Post = {
-  id: number
-  title: string
-  sub_title: string
-  content: string
-  created_at: string
-  category?: string
-  type?: string
-  shouldFocus?: boolean
-}
+  id: number;
+  title: string;
+  sub_title: string;
+  content: string;
+  created_at: string;
+  category?: string;
+  type?: string;
+  shouldFocus?: boolean;
+};
 
 export default async function Page() {
-  const res = await UseFetch(`${API_BASE_URL}/my-posts`, 'GET', undefined, true, 'no-cache')
+  const { posts, error } = await getMyPosts();
 
-  if (res.status === 401) return redirect('/login')
+  const data = posts ? posts : [];
 
-  if (!res.ok) return <div>Failed to load blogs</div>
+  console.log(data);
 
-  const data: Post[] = await res.json()
-
-  const privatePosts = data.filter(post => post.type === 'private')
-  const publicPosts = data.filter(post => post.type === 'public')
+  const privatePosts = data.filter((post) => post.type === "private");
+  const publicPosts = data.filter((post) => post.type === "public");
 
   return (
     <main className="mx-auto mt-10 flex max-w-6xl flex-col p-10 md:px-20">
@@ -49,7 +45,7 @@ export default async function Page() {
                   Public Posts {publicPosts.length}
                 </TabsTrigger>
                 <TabsTrigger className="w-full" value="saved">
-                  Saved Posts {privatePosts.length}{' '}
+                  Saved Posts {privatePosts.length}{" "}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="saved">
@@ -67,5 +63,5 @@ export default async function Page() {
         </div>
       </Suspense>
     </main>
-  )
+  );
 }

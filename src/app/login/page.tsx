@@ -1,14 +1,20 @@
-'use client'
+"use client";
 
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import Container from '@/components/ui/container'
-import Section from '@/components/ui/section'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import Container from "@/components/ui/container";
+import Section from "@/components/ui/section";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -16,62 +22,63 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { login } from '@/actions'
-import { useAuth } from '@/context/authProvider'
-import { KEY_JWT_TOKEN, Routes } from '@/contstants'
-import { cookieStoreRemove } from '@/utils/cookie-store'
-import Alert from '@/components/ui/alert'
-import { LoginSchema } from '@/zodSchemas'
+} from "@/components/ui/form";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { useAuth } from "@/context/authProvider";
+import { KEY_JWT_TOKEN, Routes } from "@/contstants";
+import { cookieStoreRemove } from "@/utils/cookie-store";
+import Alert from "@/components/ui/alert";
+import { LoginSchema } from "@/zodSchemas";
+import { login } from "@/api/endpoints";
 
 export default function Page() {
   const [alert, setAlert] = useState({
     submitType: false,
-    text: '',
-  })
+    text: "",
+  });
 
-  const { push } = useRouter()
-  const { login: loginProvider } = useAuth()
+  const { push } = useRouter();
+  const { login: loginProvider } = useAuth();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
-  })
+  });
 
   useEffect(() => {
     const removeToken = async () => {
-      cookieStoreRemove(KEY_JWT_TOKEN)
-    }
+      cookieStoreRemove(KEY_JWT_TOKEN);
+    };
 
-    removeToken()
-  }, [])
+    removeToken();
+  }, []);
 
   const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
-    const { email, password } = data
+    const { email, password } = data;
 
     try {
-      const { token, message, success } = await login(email, password)
+      const { token, message, success } = await login(email, password);
 
-      if (token) loginProvider(token)
+      if (token) loginProvider(token);
 
       if (success) {
-        setAlert({ submitType: success, text: message })
+        setAlert({ submitType: success, text: message });
         setTimeout(() => {
-          push(Routes.HOME)
-        }, 500)
+          push(Routes.HOME);
+        }, 500);
       }
 
-      if (!success) setAlert({ submitType: success, text: message })
+      if (!success) setAlert({ submitType: success, text: message });
     } catch (error) {
-      setAlert({ submitType: false, text: 'Failed to login.' })
+      setAlert({ submitType: false, text: "Failed to login." });
     }
-  }
+  };
 
   return (
     <Section description="Register">
@@ -90,7 +97,11 @@ export default function Page() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input id="email" placeholder="Email Address" {...field} />
+                        <Input
+                          id="email"
+                          placeholder="Email Address"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,26 +115,29 @@ export default function Page() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" id="password" placeholder="Password" {...field} />
+                        <Input
+                          type="password"
+                          id="password"
+                          placeholder="Password"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <Link href={Routes.REGISTER} className="text-sm font-medium text-blue-600">
-                  {' '}
-                  Don&apos;t have an account? Signup
-                </Link>
-                <CardFooter className="flex justify-end">
+                <CardFooter className="flex justify-end mt-8">
                   <Button>Login</Button>
                 </CardFooter>
-                {alert.text && <Alert submitType={alert.submitType} text={alert.text} />}
+                {alert.text && (
+                  <Alert submitType={alert.submitType} text={alert.text} />
+                )}
               </form>
             </Form>
           </CardContent>
         </Card>
       </Container>
     </Section>
-  )
+  );
 }

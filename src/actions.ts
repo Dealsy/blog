@@ -1,15 +1,15 @@
-'use server'
+"use server";
 
-import { revalidatePath } from 'next/cache'
-import { UseFetch } from './hooks/useFetch'
-import { API_BASE_URL } from './contstants'
+import { revalidatePath } from "next/cache";
 
-type ErrorResponse = {
-  error: string
-}
+import { KEY_JWT_TOKEN } from "./contstants";
+import { sql } from "@vercel/postgres";
 
-type SuccessResponse = {
-  message: string
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { cookieStoreGet } from "./utils/cookie-store";
+
+interface CustomJwtPayload extends JwtPayload {
+  id: number;
 }
 
 export async function createPost(
@@ -17,52 +17,70 @@ export async function createPost(
   content: string,
   sub_title: string,
   category: string,
-  type: string,
-  user_id: number,
-): Promise<{ success: boolean; message: string }> {
-  try {
-    const response = await UseFetch(`${API_BASE_URL}/posts`, 'POST', {
-      title,
-      content,
-      sub_title,
-      category,
-      type,
-      user_id,
-    })
+  type: string
+) {
+  const token = await cookieStoreGet(KEY_JWT_TOKEN);
 
-    if (!response.ok) {
-      const errorResponse: ErrorResponse = await response.json()
-      return { success: false, message: errorResponse.error || response.statusText }
-    }
-
-    revalidatePath('/')
-
-    return { success: true, message: 'Post created successfully.' }
-  } catch (error) {
+  if (!token) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to create post.',
-    }
+      message: "Unauthorized access - user not identified",
+    };
+  }
+
+  let userId;
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET_KEY as string
+    ) as CustomJwtPayload;
+
+    userId = decoded.id;
+  } catch (error) {
+    return { success: false, message: "Invalid token" };
+  }
+
+  if (!type) {
+    return { success: false, message: "Missing type" };
+  }
+
+  try {
+    const { rows } = await sql`
+      INSERT INTO posts (title, content, sub_title, category, type, user_id)
+      VALUES (${title}, ${content}, ${sub_title}, ${category}, ${type}, ${userId})
+      RETURNING *;
+    `;
+    const newPost = rows[0];
+
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "Post created successfully.",
+      post: newPost,
+    };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Error creating the post" };
   }
 }
 
-export async function deletePost(id: number): Promise<{ success: boolean; message: string }> {
+export async function deletePost(id: number) {
   try {
-    const response = await UseFetch(`${API_BASE_URL}/posts/${id}`, 'DELETE')
+    const { rows } = await sql`SELECT * FROM posts WHERE id = ${id}`;
 
-    if (!response.ok) {
-      const errorResponse: ErrorResponse = await response.json()
-      return { success: false, message: errorResponse.error || 'Failed to delete post.' }
+    if (rows.length === 0) {
+      return { error: "Post not found" };
     }
 
-    revalidatePath('/')
+    await sql`DELETE FROM posts WHERE id = ${id}`;
 
-    return { success: true, message: 'Post deleted successfully.' }
+    revalidatePath("/");
+
+    return rows[0];
   } catch (error) {
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Failed to delete post.',
-    }
+    console.error(error);
+    return { error: "Error deleting the post" };
   }
 }
 
@@ -71,85 +89,47 @@ export async function updatePost(
   title: string,
   content: string,
   sub_title: string,
-  category: string,
+  category: string
 ): Promise<{ success: boolean; message: string }> {
   try {
-    const response = await UseFetch(`${API_BASE_URL}/posts/${id}`, 'PUT', {
-      title,
-      content,
-      sub_title,
-      category,
-      type: 'public',
-    })
+    const { rows } = await sql`SELECT * FROM posts WHERE id = ${id}`;
 
-    console.log(response)
-
-    if (!response.ok) {
-      const errorResponse: ErrorResponse = await response.json()
-      return { success: false, message: errorResponse.error || 'Failed to update post.' }
+    if (rows.length === 0) {
+      return { success: false, message: "Post not found" };
     }
 
-    revalidatePath('/')
+    const token = await cookieStoreGet(KEY_JWT_TOKEN);
 
-    return { success: true, message: 'Post updated successfully.' }
+    if (!token) {
+      return {
+        success: false,
+        message: "Unauthorized access - user not identified",
+      };
+    }
+
+    let userId;
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET_KEY as string
+    ) as CustomJwtPayload;
+
+    userId = decoded.id;
+
+    await sql`
+      UPDATE posts
+      SET title = ${title}, content = ${content}, sub_title = ${sub_title}, category = ${category}
+      WHERE id = ${id} AND user_id = ${userId};
+    `;
+
+    revalidatePath("/");
+
+    return { success: true, message: "Post updated successfully." };
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to update post.',
-    }
-  }
-}
-
-// login
-export async function login(
-  email: string,
-  password: string,
-): Promise<{ success: boolean; message: string; token?: string }> {
-  try {
-    const response = await UseFetch(`${API_BASE_URL}/login`, 'POST', {
-      email,
-      password,
-    })
-
-    if (!response.ok) {
-      const errorResponse: ErrorResponse = await response.json()
-      return { success: false, message: errorResponse.error || 'Failed to login.' }
-    }
-
-    const { token } = await response.json()
-
-    return { success: true, message: 'Login successful.', token }
-  } catch (error) {
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Failed to login.',
-    }
-  }
-}
-
-export async function register(
-  email: string,
-  password: string,
-): Promise<{ success: boolean; message: string; token?: string }> {
-  try {
-    const response = await UseFetch(`${API_BASE_URL}/register`, 'POST', {
-      email,
-      password,
-    })
-
-    if (!response.ok) {
-      const errorResponse: ErrorResponse = await response.json()
-      return { success: false, message: errorResponse.error || 'Failed to register.' }
-    }
-    const successResponse: SuccessResponse = await response.json()
-    return {
-      success: true,
-      message: successResponse.message || 'User registered successfully.',
-    }
-  } catch (error) {
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'An unknown error occurred',
-    }
+      message:
+        error instanceof Error ? error.message : "Failed to update post.",
+    };
   }
 }

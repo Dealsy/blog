@@ -1,19 +1,18 @@
-import { Suspense } from 'react'
-
-import { Post } from './admin/page'
-import Section from '@/components/ui/section'
-import { UseFetch } from '@/hooks/useFetch'
-import AllBlogs from '@/components/blog/blog'
-import Container from '@/components/ui/container'
-import { API_BASE_URL } from '@/contstants'
-import HomeSkeleton from '@/components/ui/skeletons/homeSkeleton'
+import { Suspense } from "react";
+import Section from "@/components/ui/section";
+import AllBlogs from "@/components/blog/blog";
+import Container from "@/components/ui/container";
+import HomeSkeleton from "@/components/ui/skeletons/homeSkeleton";
+import { getPosts } from "@/api/endpoints";
 
 export default async function Page() {
-  const res = await UseFetch(`${API_BASE_URL}/posts`, 'GET', undefined, false, 'no-cache')
+  const { posts, error } = await getPosts();
 
-  if (!res.ok) return <p>Failed to load blogs</p>
+  const data = posts ? posts : [];
 
-  const data: Post[] = await res.json()
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <Section description="Blog Posts" className="flex flex-col gap-4 ">
@@ -23,5 +22,5 @@ export default async function Page() {
         </Suspense>
       </Container>
     </Section>
-  )
+  );
 }
