@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+
 import Section from "@/components/ui/section";
 import AllBlogs from "@/components/blog/blog";
 import Container from "@/components/ui/container";

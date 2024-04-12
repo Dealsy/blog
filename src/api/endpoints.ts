@@ -144,8 +144,6 @@ export async function getPosts(): Promise<{ posts?: Post[]; error?: string }> {
 export default async function getMyPosts() {
   const token = await cookieStoreGet(KEY_JWT_TOKEN);
 
-  console.log(token);
-
   if (!token) {
     return { error: "Unauthorized access - user not identified" };
   }
@@ -166,7 +164,6 @@ export default async function getMyPosts() {
     const { rows } =
       await sql`SELECT * FROM posts WHERE user_id = ${user_id} ORDER BY created_at DESC`;
 
-    console.log(rows);
     if (rows.length === 0) {
       console.log("No posts found.");
       return { posts: [] };

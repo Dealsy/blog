@@ -23,7 +23,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -130,6 +129,7 @@ export default function Page() {
                 <CardFooter className="flex justify-end mt-8">
                   <Button>Login</Button>
                 </CardFooter>
+
                 {alert.text && (
                   <Alert submitType={alert.submitType} text={alert.text} />
                 )}
