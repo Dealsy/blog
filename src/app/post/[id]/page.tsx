@@ -41,7 +41,7 @@ export default async function Page({ params }: { params: { id: number } }) {
         const rawCode = codeBlock.text() as string;
 
         const highlightedHtml = await codeToHtml(rawCode, {
-          lang: "typescript",
+          lang: "javascript",
           theme: "night-owl",
           transformers: [
             transformerNotationDiff(),
@@ -63,7 +63,7 @@ export default async function Page({ params }: { params: { id: number } }) {
   return (
     <Section description="Posts" className="p-24">
       <article className="mx-auto flex max-w-4xl flex-col gap-5 px-3">
-        <div className="flex max-w-xl flex-col items-start gap-5 sm:flex-row sm:items-center">
+        <div className="flex max-w-2xl flex-col items-start gap-5 sm:flex-row sm:items-center">
           <BackArrow />
           <HeaderTag
             level="h1"
@@ -82,7 +82,7 @@ export default async function Page({ params }: { params: { id: number } }) {
 
         <div
           className={cn(
-            "prose mb-8 max-w-[350px] prose-code:text-base md:max-w-4xl",
+            "prose prose-p:text-black prose-p:text-opacity-85 prose-p:text-lg mb-8 max-w-[350px] prose-code:text-base md:max-w-4xl",
             "prose-pre:m-0 prose-pre:overflow-x-auto prose-pre:p-2",
             "prose-code:overflow-x-auto prose-pre:overflow-x-auto"
           )}

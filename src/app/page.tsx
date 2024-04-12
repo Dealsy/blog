@@ -17,7 +17,7 @@ export default async function Page() {
 
   return (
     <Section description="Blog Posts" className="flex flex-col gap-4 ">
-      <Container width="[900]" className="flex flex-col gap-4">
+      <Container width="7xl" className="flex flex-col gap-4 p-20">
         <Suspense fallback={<HomeSkeleton />}>
           <AllBlogs data={data} />
         </Suspense>

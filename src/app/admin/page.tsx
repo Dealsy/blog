@@ -21,9 +21,11 @@ export type Post = {
 export default async function Page() {
   const { posts, error } = await getMyPosts();
 
-  const data = posts ? posts : [];
+  if (error) {
+    return <div>{error}</div>;
+  }
 
-  console.log(data);
+  const data = posts ? posts : [];
 
   const privatePosts = data.filter((post) => post.type === "private");
   const publicPosts = data.filter((post) => post.type === "public");

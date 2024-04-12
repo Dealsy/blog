@@ -16,6 +16,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "../ui/textarea";
@@ -35,14 +44,17 @@ export default function Posts({
   content: initialContent,
   category = "",
   id,
-
+  type,
   created_at,
 }: Post) {
   const [updatedTitle, setUpdatedTitle] = useState(initialTitle);
   const [updateSubTitle, setUpdatedSubTitle] = useState(sub_title);
   const [updatedContent, setUpdatedContent] = useState(initialContent);
   const [updatedCategory, setUpdatedCategory] = useState(category);
+  const [updatedType, setUpdatedType] = useState(type ?? "public");
   const [openModel, setOpenModel] = useState<postActions>(null);
+
+  const types = ["public", "private"];
 
   const { push } = useRouter();
 
@@ -74,10 +86,19 @@ export default function Posts({
     title: string,
     content: string,
     sub_title: string,
-    category: string
+    category: string,
+    updatedType: string
   ) => {
     e.stopPropagation();
-    const result = await updatePost(id, title, content, sub_title, category);
+
+    const result = await updatePost(
+      id,
+      title,
+      content,
+      sub_title,
+      category,
+      updatedType
+    );
     if (result.success) {
       toast.success(result.message, {
         action: {
@@ -250,16 +271,33 @@ export default function Posts({
                 className="col-span-3"
                 onChange={(e) => setUpdatedCategory(e.target.value)}
               />
-              <Label htmlFor="type" className="text-left">
-                Type
-              </Label>
+              <div>
+                <Label htmlFor="type" className="text-left">
+                  Type
+                </Label>
+                <Select onValueChange={setUpdatedType} value={updatedType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={updatedType} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>{updatedType}</SelectLabel>
+                      {types.map((itemType) => (
+                        <SelectItem key={itemType} value={itemType}>
+                          {itemType}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid grid-cols-1 items-center gap-4">
               <Label htmlFor="content" className="text-left">
                 Content
               </Label>
               <Textarea
-                rows={40}
+                rows={30}
                 id="content"
                 className="col-span-3"
                 defaultValue={initialContent}
@@ -284,7 +322,8 @@ export default function Posts({
                     updatedTitle,
                     updatedContent,
                     updateSubTitle,
-                    updatedCategory
+                    updatedCategory,
+                    updatedType
                   )
                 }
                 type="submit"

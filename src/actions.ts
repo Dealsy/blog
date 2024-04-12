@@ -89,7 +89,8 @@ export async function updatePost(
   title: string,
   content: string,
   sub_title: string,
-  category: string
+  category: string,
+  type: string
 ): Promise<{ success: boolean; message: string }> {
   try {
     const { rows } = await sql`SELECT * FROM posts WHERE id = ${id}`;
@@ -118,7 +119,7 @@ export async function updatePost(
 
     await sql`
       UPDATE posts
-      SET title = ${title}, content = ${content}, sub_title = ${sub_title}, category = ${category}
+      SET title = ${title}, content = ${content}, sub_title = ${sub_title}, category = ${category}, type = ${type}
       WHERE id = ${id} AND user_id = ${userId};
     `;
 
