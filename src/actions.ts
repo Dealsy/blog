@@ -119,7 +119,7 @@ export async function updatePost(
 
     await sql`
       UPDATE posts
-      SET title = ${title}, content = ${content}, sub_title = ${sub_title}, category = ${category}, type = ${type}
+      SET title = ${title}, content = ${content}, sub_title = ${sub_title}, category = ${category}, type = ${type}, updated_at = NOW()
       WHERE id = ${id} AND user_id = ${userId};
     `;
 

@@ -59,6 +59,9 @@ export default async function Page({ params }: { params: { id: number } }) {
   const updatedHtml = $.html();
 
   const formattedDate = format(post.created_at, "dd/MM/yyyy 'at' ha");
+  const updateFormattedDate = post.updated_at
+    ? format(post.updated_at, "dd/MM/yyyy 'at' h:mm a")
+    : null;
 
   return (
     <Section description="Posts" className="p-24">
@@ -76,9 +79,22 @@ export default async function Page({ params }: { params: { id: number } }) {
           text={post.sub_title}
           className="mt-2 text-xl font-medium sm:text-2xl"
         />
-        <time className="mb-8 text-[12px] text-black text-opacity-75">
-          Created at: {formattedDate}
-        </time>
+        <div className="flex flex-col gap-2">
+          <time className="self-start text-[12px] text-opacity-75">
+            Created: {formattedDate}
+          </time>
+          {post.updated_at && (
+            <time
+              className={cn(
+                "text-[12px] text-black text-opacity-75",
+                "group-hover:text-white",
+                "group-focus:text-white"
+              )}
+            >
+              Last Updated: {updateFormattedDate}
+            </time>
+          )}
+        </div>
 
         <div
           className={cn(

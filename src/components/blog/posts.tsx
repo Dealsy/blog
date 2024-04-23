@@ -10,10 +10,19 @@ import { Routes } from "@/contstants";
 import HeaderTag from "../ui/header";
 import { Card } from "../ui/card";
 
-export default function Posts({ title, sub_title, id, created_at }: Post) {
+export default function Posts({
+  title,
+  sub_title,
+  id,
+  created_at,
+  updated_at,
+}: Post) {
   const { push } = useRouter();
 
   const formattedDate = format(created_at, "dd/MM/yyyy 'at' ha");
+  const updateFormattedDate = updated_at
+    ? format(updated_at, "dd/MM/yyyy 'at' h:mm a")
+    : null;
 
   const handleRedirect = () => {
     push(`${Routes.POST}/${id}`);
@@ -41,7 +50,7 @@ export default function Posts({ title, sub_title, id, created_at }: Post) {
             <HeaderTag
               level="h2"
               text={title}
-              className="mt-4 text-xl font-semibold group-hover:text-white"
+              className="mt-4 text-2xl font-semibold group-hover:text-white"
             />
             <HeaderTag
               level="h3"
@@ -49,9 +58,23 @@ export default function Posts({ title, sub_title, id, created_at }: Post) {
               className="mb-4 text-base font-medium group-hover:text-white"
             />
           </div>
-          <time className="self-start text-[12px] text-opacity-75">
-            Created at: {formattedDate}
-          </time>
+
+          <div className="flex flex-col gap-2">
+            <time className="self-start text-[12px] text-opacity-75">
+              Created: {formattedDate}
+            </time>
+            {updated_at && (
+              <time
+                className={cn(
+                  "text-[12px] text-black text-opacity-75",
+                  "group-hover:text-white",
+                  "group-focus:text-white"
+                )}
+              >
+                Last Updated: {updateFormattedDate}
+              </time>
+            )}
+          </div>
         </div>
       </Card>
     </>

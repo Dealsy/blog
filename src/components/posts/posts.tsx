@@ -46,6 +46,7 @@ export default function Posts({
   id,
   type,
   created_at,
+  updated_at,
 }: Post) {
   const [updatedTitle, setUpdatedTitle] = useState(initialTitle);
   const [updateSubTitle, setUpdatedSubTitle] = useState(sub_title);
@@ -59,6 +60,10 @@ export default function Posts({
   const { push } = useRouter();
 
   const formattedDate = format(created_at, "dd/MM/yyyy 'at' h:mm a");
+
+  const updateFormattedDate = updated_at
+    ? format(updated_at, "dd/MM/yyyy 'at' h:mm a")
+    : null;
 
   const handleRedirect = () => {
     push(`${Routes.POST}/${id}`);
@@ -153,15 +158,28 @@ export default function Posts({
               "group-focus:text-white"
             )}
           />
-          <time
-            className={cn(
-              "mt-2 text-[12px] text-black text-opacity-75",
-              "group-hover:text-white",
-              "group-focus:text-white"
+          <div className="flex flex-col gap-2">
+            <time
+              className={cn(
+                "mt-2 text-[12px] text-black text-opacity-75",
+                "group-hover:text-white",
+                "group-focus:text-white"
+              )}
+            >
+              Created: {formattedDate}
+            </time>
+            {updated_at && (
+              <time
+                className={cn(
+                  "text-[12px] text-black text-opacity-75",
+                  "group-hover:text-white",
+                  "group-focus:text-white"
+                )}
+              >
+                Last updated: {updateFormattedDate}
+              </time>
             )}
-          >
-            Created at: {formattedDate}
-          </time>
+          </div>
         </div>
         <div className="flex w-full flex-row gap-2">
           <Button

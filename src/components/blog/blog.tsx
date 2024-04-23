@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import Grid from "../ui/grid";
 import Posts from "./posts";
@@ -113,19 +113,25 @@ export default function AllBlogs({ data }: AllBlogsProps) {
       </div>
 
       <Grid cols={4} className="grid-cols-1 md:grid-cols-4">
-        {filteredData.map(
-          ({ title, id, content, created_at, sub_title }, index) => (
-            <Posts
-              shouldFocus={index === 0}
-              key={id}
-              id={id}
-              content={content}
-              title={title}
-              sub_title={sub_title}
-              created_at={created_at}
-            />
-          )
-        )}
+        <Suspense fallback={<div>loading</div>}>
+          {filteredData.map(
+            (
+              { title, id, content, created_at, sub_title, updated_at },
+              index
+            ) => (
+              <Posts
+                shouldFocus={index === 0}
+                key={id}
+                id={id}
+                content={content}
+                title={title}
+                sub_title={sub_title}
+                created_at={created_at}
+                updated_at={updated_at}
+              />
+            )
+          )}
+        </Suspense>
       </Grid>
     </main>
   );
