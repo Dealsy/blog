@@ -10,6 +10,7 @@ import { Post } from "@/app/admin/page";
 
 import { cookieStoreGet } from "@/utils/cookie-store";
 import { KEY_JWT_TOKEN } from "@/contstants";
+import { revalidatePath } from "next/cache";
 
 interface CustomJwtPayload extends JwtPayload {
   id: number;
@@ -86,6 +87,7 @@ export async function login(
 }
 
 export async function getPost(id: number) {
+  revalidatePath(`/api/posts/${[id]}`);
   try {
     const { rows } = await sql`SELECT * FROM posts WHERE id = ${id};`;
 
