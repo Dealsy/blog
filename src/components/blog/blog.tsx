@@ -112,26 +112,27 @@ export default function AllBlogs({ data }: AllBlogsProps) {
         )}
       </div>
 
-      <Grid cols={4} className="grid-cols-1 md:grid-cols-4">
-        <Suspense fallback={<div>loading</div>}>
-          {filteredData.map(
-            (
-              { title, id, content, created_at, sub_title, updated_at },
-              index
-            ) => (
-              <Posts
-                shouldFocus={index === 0}
-                key={id}
-                id={id}
-                content={content}
-                title={title}
-                sub_title={sub_title}
-                created_at={created_at}
-                updated_at={updated_at}
-              />
-            )
-          )}
-        </Suspense>
+      <Grid
+        cols={4}
+        className="grid-cols-1 lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-2"
+      >
+        {filteredData.map(
+          (
+            { title, id, content, created_at, sub_title, updated_at },
+            index
+          ) => (
+            <Posts
+              shouldFocus={index === 0}
+              key={id}
+              id={id}
+              content={content}
+              title={title}
+              sub_title={sub_title}
+              created_at={created_at}
+              updated_at={updated_at}
+            />
+          )
+        )}
       </Grid>
     </main>
   );
