@@ -115,6 +115,7 @@ export async function getPost(id: number) {
 }
 
 export async function getPosts(): Promise<{ posts?: Post[]; error?: string }> {
+  revalidatePath("/api/posts");
   try {
     const { rows } =
       await sql`SELECT id, title, sub_title, content, created_at, category, type FROM posts WHERE type = ${"public"} ORDER BY created_at DESC`;
