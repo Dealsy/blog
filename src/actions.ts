@@ -80,7 +80,7 @@ export async function deletePost(id: number) {
     return rows[0];
   } catch (error) {
     console.error(error);
-    return { error: "Error deleting the post" };
+    return { error: "Error deleting the post!" };
   }
 }
 
