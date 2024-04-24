@@ -17,19 +17,9 @@ import { getPost } from "@/api/endpoints";
 
 export default async function Page({ params }: { params: { id: number } }) {
   const { id } = params;
-
-  const { posts, error } = await getPost(id);
-
-  if (error) {
-    return (
-      <div className="mx-auto mt-24 max-w-sm text-3xl font-medium">
-        No Data Found
-      </div>
-    );
-  }
+  const { posts } = await getPost(id);
 
   const [post] = posts ?? [];
-
   const content = post?.content;
 
   // Highlight code blocks

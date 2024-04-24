@@ -108,8 +108,6 @@ export async function getPost(id: number) {
       })
     );
 
-    console.log(processedPosts);
-
     return { posts: processedPosts };
   } catch (error) {
     console.error(error);
