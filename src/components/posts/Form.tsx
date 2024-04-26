@@ -1,129 +1,109 @@
-"use client";
+'use client'
 
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
 
-import { createPost } from "@/actions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "../ui/form";
-import { useAuth } from "@/context/authProvider";
-import HeaderTag from "../ui/header";
-import { Toaster } from "../ui/sonner";
-import { PostSchema } from "@/zodSchemas";
-import { useEffect, useRef } from "react";
+import { createPost } from '@/actions'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
+import HeaderTag from '../ui/header'
+import { Toaster } from '../ui/sonner'
+import { PostSchema } from '@/zodSchemas'
+import { useEffect, useRef } from 'react'
 
 export default function PostForm() {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus()
     }
-  }, []);
+  }, [])
 
   const form = useForm<z.infer<typeof PostSchema>>({
     resolver: zodResolver(PostSchema),
     defaultValues: {
-      title: "",
-      sub_title: "",
-      content: "",
-      category: "",
-      type: "public",
+      title: '',
+      sub_title: '',
+      content: '',
+      category: '',
+      type: 'public',
     },
-  });
+  })
 
   const handleSubmit = async (formData: z.infer<typeof PostSchema>) => {
-    const title = formData.title;
-    const sub_title = formData.sub_title;
-    const category = formData.category;
-    const type = formData.type;
-    const content = formData.content;
-    const result = PostSchema.safeParse(formData);
+    const title = formData.title
+    const sub_title = formData.sub_title
+    const category = formData.category
+    const type = formData.type
+    const content = formData.content
+    const result = PostSchema.safeParse(formData)
 
     if (!result.success) {
-      toast.error("Something went wrong, Your post was not created", {
+      toast.error('Something went wrong, Your post was not created', {
         action: {
-          label: "Close",
+          label: 'Close',
           onClick: () => {},
         },
-      });
+      })
     }
 
     if (result.success) {
-      const result = await createPost(
-        title,
-        content,
-        sub_title,
-        category,
-        type
-      );
+      const result = await createPost(title, content, sub_title, category, type)
       toast.success(result.message, {
         action: {
-          label: "Close",
+          label: 'Close',
           onClick: () => {},
         },
-      });
+      })
 
-      form.reset();
+      form.reset()
     }
 
-    return;
-  };
+    return
+  }
 
   const handleSaveForLater = async (event: React.MouseEvent) => {
-    event.preventDefault();
-    const formData = form.getValues();
-    const title = formData.title;
-    const sub_title = formData.sub_title;
-    const category = formData.category;
-    const type = "private";
-    const content = formData.content;
+    event.preventDefault()
+    const formData = form.getValues()
+    const title = formData.title
+    const sub_title = formData.sub_title
+    const category = formData.category
+    const type = 'private'
+    const content = formData.content
 
-    const result = await createPost(title, content, sub_title, category, type);
+    const result = await createPost(title, content, sub_title, category, type)
 
     if (result.success) {
-      toast.success("Post saved successfully", {
+      toast.success('Post saved successfully', {
         action: {
-          label: "Close",
+          label: 'Close',
           onClick: () => {},
         },
-      });
+      })
     }
 
     if (!result.success) {
-      toast.error("Something went wrong, Your post was not saved", {
+      toast.error('Something went wrong, Your post was not saved', {
         action: {
-          label: "Close",
+          label: 'Close',
           onClick: () => {},
         },
-      });
+      })
     }
 
-    form.reset();
-  };
+    form.reset()
+  }
 
   return (
     <>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-8 flex flex-col gap-2"
-        >
-          <HeaderTag
-            text="Write a Blog"
-            level="h2"
-            className="text-2xl font-semibold"
-          />
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-8 flex flex-col gap-2">
+          <HeaderTag text="Write a Blog" level="h2" className="text-2xl font-semibold" />
 
           <FormField
             control={form.control}
@@ -178,18 +158,10 @@ export default function PostForm() {
             )}
           />
 
-          <Button
-            variant="outline"
-            className="mt-8"
-            onClick={handleSaveForLater}
-          >
+          <Button variant="outline" className="mt-8" onClick={handleSaveForLater}>
             Save For Later
           </Button>
-          <Button
-            onClick={() =>
-              form.setValue("type", "public", { shouldValidate: true })
-            }
-          >
+          <Button onClick={() => form.setValue('type', 'public', { shouldValidate: true })}>
             Create Post
           </Button>
         </form>
@@ -197,5 +169,5 @@ export default function PostForm() {
 
       <Toaster position="bottom-right" richColors theme="light" />
     </>
-  );
+  )
 }
